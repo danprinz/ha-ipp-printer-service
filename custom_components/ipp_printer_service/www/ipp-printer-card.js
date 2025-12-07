@@ -1,3 +1,5 @@
+import "./ipp-printer-editor.js";
+
 class IPPPrinterCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;

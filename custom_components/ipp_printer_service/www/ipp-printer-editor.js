@@ -1,80 +1,100 @@
 class IPPPrinterCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
   setConfig(config) {
     this._config = config;
+    if (this._hass) this._render();
   }
 
   configChanged(newConfig) {
-    const event = new Event("config-changed", {
+    const event = new CustomEvent("config-changed", {
       bubbles: true,
       composed: true,
+      detail: { config: newConfig },
     });
-    event.detail = { config: newConfig };
     this.dispatchEvent(event);
   }
 
   set hass(hass) {
     this._hass = hass;
-    if (this._hass && !this._initialized) {
-      this._initialized = true;
-      this._render();
+    // Always attempt to update properties if we rendered already
+    const selector = this.shadowRoot.querySelector("ha-selector");
+    if (selector) {
+      selector.hass = this._hass;
     }
   }
 
   _render() {
-    if (!this._hass) return;
-    
-    // Get all sensor entities provided by ipp_printer_service
-    const entities = Object.keys(this._hass.states).filter((eid) => {
-        // Filter for our domain and specifically printer entities if identifiable
-        // We look for domain "sensor" but ideally we should match integration
-        // Since we can't easily filter by integration in frontend without more data,
-        // we'll offer a text input or a dropdown of all sensors.
-        // Better: IPP Printer Service actually registers sensors. 
-        // Let's filter by entities that start with 'sensor.' and have 'ipp' in them 
-        // OR better yet, just a simple entity picker.
-        return eid.includes('ipp_printer') || eid.includes('ipp');
-    });
+    if (!this._config) return;
 
-    this.innerHTML = `
-      <div class="card-config">
-        <div class="option">
-          <ha-entity-picker
+    if (!this.shadowRoot.querySelector('.card-config')) {
+      this.shadowRoot.innerHTML = `
+        <style>
+          :host {
+            display: block;
+          }
+          .card-config {
+            display: block;
+          }
+          .label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            display: block;
+          }
+          ha-selector {
+            display: block;
+            width: 100%;
+          }
+        </style>
+        <div class="card-config">
+          <ha-selector
             label="Printer Entity"
-            .hass=${this._hass}
-            .value=${this._config.entity}
-            .includeDomains=${['sensor']}
-            @value-changed=${this._valueChanged}
-          ></ha-entity-picker>
+          ></ha-selector>
         </div>
-      </div>
-    `;
+      `;
+      
+      const selector = this.shadowRoot.querySelector("ha-selector");
+      selector.addEventListener("value-changed", (ev) => this._valueChanged(ev));
+    }
     
-    // Bind event
-    const picker = this.querySelector("ha-entity-picker");
-    if(picker) {
-        picker.addEventListener("value-changed", (ev) => this._valueChanged(ev));
+    // Update properties
+    const selector = this.shadowRoot.querySelector("ha-selector");
+    if (selector) {
+      if (this._hass) selector.hass = this._hass;
+      selector.value = this._config.entity;
+      selector.required = true;
+      selector.selector = {
+        entity: {
+          domain: "sensor",
+          integration: "ipp_printer_service"
+        }
+      };
     }
   }
 
   _valueChanged(ev) {
     if (!this._config || !this._hass) return;
-    const target = ev.target;
-    if (this._config.entity === target.value) return;
-    if (target.value) {
-      this._config = {
-        ...this._config,
-        entity: target.value,
-      };
-      this.configChanged(this._config);
-    }
+    const value = ev.detail.value;
+    if (this._config.entity === value) return;
+    
+    this._config = {
+      ...this._config,
+      entity: value,
+    };
+    this.configChanged(this._config);
   }
 }
 
-customElements.define("ipp-printer-card-editor", IPPPrinterCardEditor);
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "ipp-printer-card",
-  name: "IPP Printer Card",
-  preview: true, // Optional: enables preview in the picker
-  description: "A card to upload and print PDF files via IPP",
-});
+if (!customElements.get("ipp-printer-card-editor")) {
+  customElements.define("ipp-printer-card-editor", IPPPrinterCardEditor);
+  window.customCards = window.customCards || [];
+  window.customCards.push({
+    type: "ipp-printer-card",
+    name: "IPP Printer Card",
+    preview: true,
+    description: "A card to upload and print PDF files via IPP",
+  });
+}
