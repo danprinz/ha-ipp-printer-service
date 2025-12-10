@@ -15,3 +15,11 @@ print_pdf:
       required: true
       selector:
         text:
+    is_local_path:
+      name: Is Local Path
+      description: If true, the file path is treated as a path relative to the Home Assistant local URL (e.g. /api/image_manager/1/pdf).
+      required: false
+      default: false
+      selector:
+        boolean:
+
