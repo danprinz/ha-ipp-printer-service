@@ -22,4 +22,14 @@ print_pdf:
       default: false
       selector:
         boolean:
+    copies:
+      name: Copies
+      description: Number of copies to print.
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 99
+          mode: box
 

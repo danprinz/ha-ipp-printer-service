@@ -34,6 +34,7 @@ async def async_setup_services(hass: HomeAssistant):
         entity_id = call.data.get("entity_id")
         file_path_template = call.data.get("file_path")
         is_local_path = call.data.get("is_local_path", False)
+        copies = call.data.get("copies", 1)
 
         if not isinstance(file_path_template, str):
             raise HomeAssistantError("File path must be a string template")
@@ -140,13 +141,16 @@ async def async_setup_services(hass: HomeAssistant):
         # Check for simulation mode
         if config_entry.options.get(CONF_SIMULATION_MODE, False):
             _LOGGER.info(
-                "Simulation mode active. Printing %s simulated.", msg_file_path
+                "Simulation mode active. Printing %d copies of %s simulated.",
+                copies,
+                msg_file_path,
             )
             coordinator = config_entry.runtime_data
             coordinator.async_set_last_job(
                 {
                     "entity_id": entity_id,
                     "file_path": msg_file_path,  # Log the original path/URL
+                    "copies": copies,
                     "timestamp": str(datetime.now()),
                     "status": "simulated",
                 }
@@ -187,7 +191,8 @@ async def async_setup_services(hass: HomeAssistant):
                 content = await f.read()
 
             _LOGGER.info(
-                "Printing %s to %s:%s%s (SSL=%s)",
+                "Printing %d copies of %s to %s:%s%s (SSL=%s)",
+                copies,
                 msg_file_path,
                 host,
                 port,
@@ -200,12 +205,18 @@ async def async_setup_services(hass: HomeAssistant):
                     "requesting-user-name": "Home Assistant",
                     "job-name": "Attendance Doc",
                     "document-format": "application/pdf",
+                    "copies": copies,
                 },
                 "data": content,
             }
 
             await ipp.execute(IppOperation.PRINT_JOB, message)
-            _LOGGER.info("Successfully printed %s to %s", msg_file_path, entity_id)
+            _LOGGER.info(
+                "Successfully printed %d copies of %s to %s",
+                copies,
+                msg_file_path,
+                entity_id,
+            )
 
             # Update last job for real prints too
             coordinator = config_entry.runtime_data
@@ -213,6 +224,7 @@ async def async_setup_services(hass: HomeAssistant):
                 {
                     "entity_id": entity_id,
                     "file_path": msg_file_path,
+                    "copies": copies,
                     "timestamp": str(datetime.now()),
                     "status": "success",
                 }
