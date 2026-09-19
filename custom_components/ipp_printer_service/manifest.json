@@ -1,11 +1,11 @@
 {
   "domain": "ipp_printer_service",
   "name": "IPP Printer Service",
-  "version": "1.0.0",
+  "codeowners": ["@danprinz"],
+  "config_flow": true,
+  "dependencies": ["ipp"],
   "documentation": "https://github.com/danprinz/ha-ipp-printer-service",
   "issue_tracker": "https://github.com/danprinz/ha-ipp-printer-service/issues",
-  "dependencies": ["ipp"],
-  "codeowners": ["@danprinz"],
   "requirements": [],
-  "config_flow": true
+  "version": "1.0.0"
 }

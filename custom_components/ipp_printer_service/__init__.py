@@ -8,7 +8,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
 from .coordinator import IPPPrinterServiceCoordinator
 from .services import async_setup_services
 from .views import IPPPrintUploadView

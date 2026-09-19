@@ -6,8 +6,6 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-from pyipp import IPP, IPPConnectionError, IPPError
-
 from homeassistant import config_entries
 from homeassistant.const import (
     CONF_HOST,
@@ -20,6 +18,8 @@ from homeassistant.const import (
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from pyipp import IPP, IPPConnectionError, IPPError
+from pyipp.enums import IppOperation
 
 from .const import (
     CONF_BASE_PATH,
@@ -27,7 +27,6 @@ from .const import (
     CONF_SIMULATION_MODE,
     DOMAIN,
 )
-from pyipp.enums import IppOperation
 
 _LOGGER = logging.getLogger(__name__)
 

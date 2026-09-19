@@ -1,12 +1,12 @@
 import logging
 import os
 import uuid
-from aiohttp import web
 
+from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.core import HomeAssistant
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class IPPPrintUploadView(HomeAssistantView):
     """View to handle file uploads for IPP printing."""
@@ -20,16 +20,18 @@ class IPPPrintUploadView(HomeAssistantView):
         try:
             reader = await request.multipart()
             file = await reader.next()
-            
+
             if not file:
                 return web.Response(status=400, text="No file uploaded")
 
             filename = file.filename
             if not filename.lower().endswith(".pdf"):
-                 return web.Response(status=400, text="Only PDF files are allowed")
+                return web.Response(status=400, text="Only PDF files are allowed")
 
             # Create a temporary directory if it doesn't exist
-            temp_dir = request.app["hass"].config.path("www", "ipp_printer_service_temp")
+            temp_dir = request.app["hass"].config.path(
+                "www", "ipp_printer_service_temp"
+            )
             if not os.path.exists(temp_dir):
                 os.makedirs(temp_dir)
 
@@ -39,6 +41,7 @@ class IPPPrintUploadView(HomeAssistantView):
 
             # Write the file
             import aiofiles
+
             size = 0
             async with aiofiles.open(file_path, "wb") as f:
                 while True:

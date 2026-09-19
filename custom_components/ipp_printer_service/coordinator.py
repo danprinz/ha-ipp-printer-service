@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any
-from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -40,9 +40,6 @@ class IPPPrinterServiceCoordinator(DataUpdateCoordinator[IPPPrinterServiceData])
 
     async def _async_update_data(self) -> IPPPrinterServiceData:
         """Update data via library."""
-        from pyipp import IPP, IPPError
-        from homeassistant.helpers.aiohttp_client import async_get_clientsession
-        from .const import CONF_BASE_PATH, CONF_PRINTER_NAME
         from homeassistant.const import (
             CONF_HOST,
             CONF_PASSWORD,
@@ -51,6 +48,10 @@ class IPPPrinterServiceCoordinator(DataUpdateCoordinator[IPPPrinterServiceData])
             CONF_USERNAME,
             CONF_VERIFY_SSL,
         )
+        from homeassistant.helpers.aiohttp_client import async_get_clientsession
+        from pyipp import IPP, IPPError
+
+        from .const import CONF_BASE_PATH
 
         data = self.config_entry.data
         session = async_get_clientsession(self.hass)

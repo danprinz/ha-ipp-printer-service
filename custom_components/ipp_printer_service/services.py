@@ -5,11 +5,6 @@ from pathlib import Path
 
 import aiofiles
 from aiohttp import ClientError
-from pyipp import IPP
-from pyipp.enums import IppOperation
-from pyipp.exceptions import IPPError
-
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_HOST,
     CONF_PORT,
@@ -20,6 +15,8 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from pyipp import IPP
+from pyipp.enums import IppOperation
 
 from .const import CONF_SIMULATION_MODE
 

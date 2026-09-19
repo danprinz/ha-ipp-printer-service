@@ -6,20 +6,17 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PORT,
+    EntityCategory,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import CONF_PRINTER_NAME, DOMAIN
 from .coordinator import IPPPrinterServiceCoordinator
-
-
-from homeassistant.const import EntityCategory
-from homeassistant.const import (
-    CONF_HOST,
-    CONF_PORT,
-)
-from .const import CONF_PRINTER_NAME
 
 
 async def async_setup_entry(
