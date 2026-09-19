@@ -1,9 +1,14 @@
 {
   "domain": "ipp_printer_service",
   "name": "IPP Printer Service",
-  "codeowners": ["@danprinz"],
+  "codeowners": [
+    "@danprinz"
+  ],
   "config_flow": true,
-  "dependencies": ["ipp"],
+  "dependencies": [
+    "http",
+    "ipp"
+  ],
   "documentation": "https://github.com/danprinz/ha-ipp-printer-service",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/danprinz/ha-ipp-printer-service/issues",
