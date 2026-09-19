@@ -5,6 +5,7 @@
   "config_flow": true,
   "dependencies": ["ipp"],
   "documentation": "https://github.com/danprinz/ha-ipp-printer-service",
+  "iot_class": "local_polling",
   "issue_tracker": "https://github.com/danprinz/ha-ipp-printer-service/issues",
   "requirements": [],
   "version": "1.0.0"
