@@ -32,4 +32,11 @@ print_pdf:
           min: 1
           max: 99
           mode: box
+    job_name:
+      name: Job Name
+      description: Name of the print job, as shown in CUPS and the printer's job log.
+      required: false
+      default: Attendance Doc
+      selector:
+        text:
 

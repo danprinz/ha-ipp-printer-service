@@ -22,6 +22,10 @@ from .const import CONF_SIMULATION_MODE
 
 _LOGGER = logging.getLogger(__name__)
 
+# Callers should pass job_name so jobs are distinguishable in CUPS and the
+# printer's job log; this is the historical name, kept for older callers.
+DEFAULT_JOB_NAME = "Attendance Doc"
+
 
 async def async_setup_services(hass: HomeAssistant):
     """Set up the IPP Printer Service services."""
@@ -32,6 +36,7 @@ async def async_setup_services(hass: HomeAssistant):
         file_path_template = call.data.get("file_path")
         is_local_path = call.data.get("is_local_path", False)
         copies = call.data.get("copies", 1)
+        job_name = call.data.get("job_name") or DEFAULT_JOB_NAME
 
         if not isinstance(file_path_template, str):
             raise HomeAssistantError("File path must be a string template")
@@ -188,9 +193,11 @@ async def async_setup_services(hass: HomeAssistant):
                 content = await f.read()
 
             _LOGGER.info(
-                "Printing %d copies of %s to %s:%s%s (SSL=%s)",
+                "Printing %d copies of '%s' (%s, %d bytes) to %s:%s%s (SSL=%s)",
                 copies,
+                job_name,
                 msg_file_path,
+                len(content),
                 host,
                 port,
                 base_path,
@@ -200,19 +207,21 @@ async def async_setup_services(hass: HomeAssistant):
             message = {
                 "operation-attributes-tag": {
                     "requesting-user-name": "Home Assistant",
-                    "job-name": "Attendance Doc",
+                    "job-name": job_name,
                     "document-format": "application/pdf",
                     "copies": copies,
                 },
                 "data": content,
             }
 
-            await ipp.execute(IppOperation.PRINT_JOB, message)
+            response = await ipp.execute(IppOperation.PRINT_JOB, message)
+            jobs = (response or {}).get("jobs") or [{}]
             _LOGGER.info(
-                "Successfully printed %d copies of %s to %s",
+                "Printed %d copies of '%s' to %s (server job-id %s)",
                 copies,
-                msg_file_path,
+                job_name,
                 entity_id,
+                jobs[0].get("job-id"),
             )
 
             # Update last job for real prints too
